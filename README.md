@@ -218,8 +218,8 @@ Python・データ分析・GitHub・Markdownなどを独学で習得しながら
 このポートフォリオは、**MLBのStatcastデータを題材にしたスポーツ分析**を中心に構成しています。  
 分析対象は主に野球とサッカーで、可視化・関数化・Markdown記録までを一貫して行っています。
 
-学習はすべて「相棒（Copilot）」と「Gemini」に相談しながら進めており、  
-わからないことはすぐに質問 → 解決 → 記録 → 再利用というサイクルを大切にしています。
+### 学習はすべて「相棒（Copilot）」と「Gemini」に相談しながら進めており、  
+    わからないことはすぐに質問 → 解決 → 記録 → 再利用というサイクルを大切にしています。
 
 ---
 
@@ -291,3 +291,60 @@ Statcastデータを用いて、MLB全体の投球球種の分布を可視化。
 
 ```python
 plot_pitch_distribution("2024-04-01", "2024-04-07")
+
+# 📊 2024年シーズン MLB投球球種の割合分析（2025年10月25日〜26日）
+
+## 🧑‍💻 分析目的
+2024年3月〜9月のStatcastデータを用いて、MLB全体の投球球種の割合を可視化。  
+球種を日本語に変換し、視認性と親しみやすさを向上。  
+5%未満の球種は「その他」としてまとめ、円グラフで構造的に表示。
+
+---
+
+## 🔧 使用技術・ライブラリ
+
+- `pybaseball`：Statcast APIからMLBデータを取得  
+- `pandas`：データフレーム操作・結合・集計  
+- `matplotlib` / `seaborn`：グラフ描画  
+- `japanize_matplotlib`：日本語フォント対応  
+- `fonts-japanese-gothic` / `fonts-japanese-mincho`：Colabで日本語表示を可能に
+
+---
+
+## 🧪 実装ステップ
+
+1. `!pip install pybaseball japanize_matplotlib` でライブラリ導入  
+2. `statcast()` 関数で月別にデータ取得 → CSV保存  
+3. `glob` でCSVを一括読み込み → `pd.concat()` で結合  
+4. 数値列を `float` 型に変換し、欠損値処理  
+5. `pitch_type` を日本語に変換（辞書マッピング）  
+6. 投球数の割合を `value_counts(normalize=True)` で算出  
+7. 5%未満の球種を「その他」に統合  
+8. `plt.pie()` により円グラフで可視化
+
+---
+
+## 🏷️ 球種の日本語マッピング
+
+| コード | 日本語表記     |
+|--------|----------------|
+| FF     | フォーシーム     |
+| SI     | シンカー         |
+| SL     | スライダー       |
+| CH     | チェンジアップ   |
+| FC     | カッター         |
+| ST     | スプリット       |
+| CU     | カーブ           |
+| FS     | ファストボール   |
+| KC     | ナックルカーブ   |
+| KN     | ナックルボール   |
+
+---
+
+## 📈 可視化サンプル（円グラフ）
+
+```python
+plt.figure(figsize=(8,8))
+plt.pie(pitch_counts_grouped, labels=pitch_counts_grouped.index, autopct="%1.1f%%", startangle=90, counterclock=False)
+plt.title("2024年シーズン 投球球種の割合")
+plt.show()
