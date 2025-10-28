@@ -349,7 +349,7 @@ plt.figure(figsize=(8,8))
 plt.pie(pitch_counts_grouped, labels=pitch_counts_grouped.index, autopct="%1.1f%%", startangle=90, counterclock=False)
 plt.title("2024年シーズン 投球球種の割合")
 plt.show()
-```python
+```
 # 📊 2024年 MLB 奪三振数ランキング（上位10人）(2025年10月27日～28日）
 
 ## 🧑‍💻 分析目的
