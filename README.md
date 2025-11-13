@@ -417,3 +417,69 @@ plt.show()
 
 * Colabで準備したコードを実行し、集計結果とグラフを出力する。
 * 出力結果を基に、FFとCHの速度差が空振り率に与える影響を考察し、推奨アクションを具体化する。
+
+# ⚾️ Tarik Skubal (PITCHER_ID: 669373) 分析プロジェクト - Velo Differential & Whiff%
+
+このプロジェクトは、MLB Statcastデータを用いて、デトロイト・タイガースの**タリク・スクーバル投手（PITCHER_ID: 669373）**の投球データを分析し、彼の**空振り率 (Whiff%)** の高さの要因を特定し、その結果から**パフォーマンス向上のための戦略的なビジネス提案**を行うことを目的としています。
+
+---
+-**2025年11月14日
+## 🚀 分析のプロセスと主要なトピック
+
+1.  [cite_start]**対象データのフィルタリング**: Statcastデータからタリク・スクーバル投手（ID: 669373）の投球を抽出 [cite: 4]。
+2.  **平均球速 (Average Velocity) の算出**: 球種ごとの平均球速を計算し、特にフォーシームとチェンジアップに着目。
+3.  **球種間速度差 (Velo Differential) の特定**: 速度差が奪三振率に与える影響を分析するための基礎データとする。
+4.  **空振り率 (Whiff%) の算出**: 速度差と空振り率の関係を検証。
+
+---
+
+## 💡 主要な分析結果と考察
+
+### 1. 驚異的な球種間速度差 (Velo Differential)
+
+[cite_start]スクーバル投手の**フォーシームとチェンジアップ**の平均球速差（Velo Differential）を計算したところ、**10.54 mph**  という非常に大きな値が確認されました。この大きな速度差が、打者のタイミングを効果的に狂わせる主要因であると仮説を立てました。
+
+### 2. Whiff%（空振り率）の計算による仮説の裏付け
+
+速度差の仮説を裏付けるため、以下の計算式に基づき球種別のWhiff%を算出しました。
+
+[cite_start]$$\text{Whiff\%} = \frac{\text{Swinging Strikes (空振り)}}{\text{Total Swings (総スイング数)}} \times 100$$ [cite: 8]
+
+| 定義 | Statcast `description` の値 |
+| :--- | :--- |
+| **空振り (Swinging Strikes)** | [cite_start]`'swinging_strike'`, `'swinging_strike_blocked'` [cite: 5] |
+| **総スイング (Total Swings)** | [cite_start]`'swinging_strike'`, `'swinging_strike_blocked'`, `'foul'`, `'foul_tip'`, `'hit_into_play'`, `'missed_bunt'`, `'foul_bunt'` など、打者がバットを振った全ての投球 [cite: 5] |
+
+[cite_start]この計算により、特に彼の**チェンジアップ**が、他の球種やリーグ平均と比較して高い空振り率を記録しているかを確認しました 。
+
+---
+
+## 💻 Whiff% 算出コードのハイライト
+
+[cite_start]空振り率を計算するために定義し、写経を通じて学習した `calculate_whiff_percentage` 関数です [cite: 9]。
+
+```python
+import pandas as pd
+
+def calculate_whiff_percentage(df):
+    """
+    データフレームを受け取り、空振り率 (Whiff%) を計算する。
+    """
+    # 1. 総スイング数をカウントするためのフィルタリング
+    swing_descriptions = [
+        # ... スイングと定義されるdescriptionリスト ...
+    ]
+    df_swings = df[df['description'].isin(swing_descriptions)].copy() 
+
+    # 2. 空振り数をカウントするためのフィルタリング
+    whiff_descriptions = ['swinging_strike', 'swinging_strike_blocked']
+    whiffs_by_pitch = df[df['description'].isin(whiff_descriptions)].groupby('pitch_name').size().reset_index(name='Whiffs')
+    
+    # 3. 総スイング数と空振り数を結合し、Whiff%を計算
+    swings_by_pitch = df_swings.groupby('pitch_name').size().reset_index(name='Total_Swings')
+    [cite_start]whiff_data = pd.merge(whiffs_by_pitch, swings_by_pitch, on='pitch_name', how='inner') [cite: 11]
+    
+    whiff_data['Whiff_Percentage'] = (whiff_data['Whiffs'] / whiff_data['Total_Swings']) * 100
+    # ... (結果の丸め処理など) ...
+    
+    return whiff_data
